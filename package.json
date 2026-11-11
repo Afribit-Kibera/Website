@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build --webpack",
+    "build": "prisma generate && next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "test-db": "tsx scripts/test-db.ts",
@@ -17,11 +17,13 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:phase1-verification": "tsx scripts/apply-phase1-merchant-verification.ts",
+    "db:field-visits": "tsx scripts/apply-manual-sql.ts prisma/manual/20261111_field_visit_submissions.sql",
     "osm:check": "tsx scripts/check-osm-verifications.ts",
     "osm:sync-verifications": "tsx scripts/check-osm-verifications.ts --apply",
     "merchants:audit": "tsx tools/maintenance/audit-merchants.ts",
     "merchants:dedup": "tsx tools/maintenance/archive-merchant-duplicates.ts",
-    "test:maintenance": "tsx --test tests/maintenance/security.test.ts tests/maintenance/auth.test.ts && node --test tests/donations/donations.test.mjs"
+    "test:maintenance": "tsx --test tests/maintenance/security.test.ts tests/maintenance/auth.test.ts && node --test tests/donations/donations.test.mjs",
+    "test:field-visit": "tsx --test tests/field-visit/field-visit.test.ts"
   },
   "dependencies": {
     "@hcaptcha/react-hcaptcha": "^1.14.0",
