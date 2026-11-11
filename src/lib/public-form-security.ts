@@ -5,7 +5,10 @@ export class FormRequestError extends Error {
   constructor(message: string, public readonly status: number, public readonly retryAfter?: number) { super(message) }
 }
 
-const limiter = new RateLimiterMemory({ points: 5, duration: 900 })
+// Submissions allowed per IP every 15 minutes. Field visits are higher because
+// partners often send several from one office or a shared mobile-network IP.
+const formLimits = { contact: 5, newsletter: 5, 'field-visit': 20 } as const
+const limiters = new Map<number, RateLimiterMemory>()
 const maxBodyBytes = 32 * 1024
 const incrementWithExpiry = "local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],ARGV[1]) end; return n"
 
@@ -39,7 +42,8 @@ export async function readFormJson(request: Request): Promise<unknown> {
   catch { throw new FormRequestError('The form could not be read.', 400) }
 }
 
-export async function limitFormRequests(request: Request, form: 'contact' | 'newsletter') {
+export async function limitFormRequests(request: Request, form: keyof typeof formLimits) {
+  const points = formLimits[form]
   // Vercel overwrites X-Forwarded-For. Other deployments need a trusted proxy.
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
   const key = `afribit:forms:${form}:${createHash('sha256').update(ip).digest('hex')}`
@@ -59,10 +63,12 @@ export async function limitFormRequests(request: Request, form: 'contact' | 'new
       count = payload.result
       if (typeof count !== 'number' || !Number.isInteger(count) || count < 1) throw new Error('Invalid result')
     } catch { throw new FormRequestError('Please try again shortly, or email connect@afribit.africa.', 503) }
-    if ((count as number) > 5) throw new FormRequestError('Please wait before sending another message.', 429, 900)
+    if ((count as number) > points) throw new FormRequestError('Please wait before sending another message.', 429, 900)
     return
   }
   if (distributed) throw new FormRequestError('Please email connect@afribit.africa while the form is unavailable.', 503)
+  let limiter = limiters.get(points)
+  if (!limiter) limiters.set(points, limiter = new RateLimiterMemory({ points, duration: 900 }))
   try { await limiter.consume(key) }
   catch { throw new FormRequestError('Please wait before sending another message.', 429, 900) }
 }

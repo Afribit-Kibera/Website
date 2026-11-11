@@ -376,3 +376,31 @@ model PageView {
   @@index([path])
   @@index([createdAt])
 }
+
+// Field visit questionnaires (Circular Grant beneficiaries)
+model FieldVisitSubmission {
+  id             String             @id @default(uuid())
+  formType       FieldVisitFormType
+  formVersion    Int                @default(1)
+  followUpStage  Int?
+  fieldPartner   String
+  businessName   String
+  location       String
+  respondentName String
+  visitDate      DateTime           @db.Date
+  currency       String
+  answers        Json
+  status         SubmissionStatus   @default(PENDING)
+  createdAt      DateTime           @default(now())
+
+  @@map("field_visit_submissions")
+  @@index([formType])
+  @@index([businessName])
+  @@index([visitDate])
+  @@index([createdAt])
+}
+
+enum FieldVisitFormType {
+  NEW_BENEFICIARY
+  FOLLOW_UP
+}

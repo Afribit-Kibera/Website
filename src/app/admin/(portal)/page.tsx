@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { getAdminSession } from '@/lib/auth'
 
 export default async function AdminHomePage() {
@@ -11,6 +12,9 @@ export default async function AdminHomePage() {
         <p className="mt-4 text-base leading-8 text-muted-foreground">
           You are signed in to the Afribit admin area. Access is limited to approved administrators and editors.
         </p>
+        <Link href="/admin/field-visits" className="mt-6 inline-flex rounded-xl border border-bitcoin/30 bg-bitcoin/10 px-4 py-2.5 text-sm font-semibold text-bitcoin-light transition-colors hover:bg-bitcoin/20">
+          View field visit questionnaires
+        </Link>
       </section>
 
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8">

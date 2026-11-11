@@ -357,3 +357,48 @@ function getProgramName(slug: string): string {
   };
   return programs[slug] || slug;
 }
+
+export function fieldVisitNotification({
+  subject,
+  formTitle,
+  sections,
+  flags,
+  submittedAt,
+}: {
+  subject: string;
+  formTitle: string;
+  sections: { title: string; rows: { label: string; value: string }[] }[];
+  flags: string[];
+  submittedAt: Date;
+}) {
+  const rows = sections.map(section => `
+    <h3 style="margin:24px 0 8px;font-size:15px;color:#111;">${escapeEmailHtml(section.title)}</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      ${section.rows.map(row => `
+      <tr>
+        <td style="width:42%;padding:8px 10px;border:1px solid #e5e7eb;background:#f8f9fa;color:#4b5563;vertical-align:top;">${escapeEmailHtml(row.label)}</td>
+        <td style="padding:8px 10px;border:1px solid #e5e7eb;color:#111;vertical-align:top;">${escapeEmailHtml(row.value).replace(/\n/g, '<br>')}</td>
+      </tr>`).join('')}
+    </table>`).join('');
+
+  return {
+    subject: subject.replace(/[\r\n]/g, ' '),
+    html: `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="font-family:Arial,sans-serif;line-height:1.5;color:#333;max-width:640px;margin:0 auto;">
+  <div style="background:#1a1a1a;color:#fff;padding:20px;">
+    <h2 style="margin:0;">Field visit questionnaire: ${escapeEmailHtml(formTitle)}</h2>
+  </div>
+  <div style="padding:24px;background:#fff;">
+    <p>A field visit questionnaire was submitted on ${submittedAt.toLocaleString('en-GB', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Africa/Nairobi' })} (Nairobi time).</p>
+    ${flags.length ? `<div style="background:#fef3c7;border-left:4px solid #f97316;padding:12px 15px;margin:15px 0;"><strong>For review:</strong><br>${flags.map(escapeEmailHtml).join('<br>')}</div>` : ''}
+    ${rows}
+    <p style="margin-top:24px;color:#6b7280;font-size:13px;">After review, this email can be forwarded to hello@geyser.fund as it is. The subject line already follows the Geyser format.</p>
+  </div>
+</body>
+</html>
+    `,
+  };
+}
