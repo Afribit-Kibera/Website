@@ -18,7 +18,8 @@ import {
   type Answers,
 } from '@/lib/field-visit'
 
-const NOTIFICATION_RECIPIENTS = ['connect@afribit.africa', 'ronnie@afribit.africa']
+// Ronnie reviews each questionnaire before forwarding it to Geyser.
+const NOTIFICATION_RECIPIENTS = ['ronnie@afribit.africa']
 
 const answerValue = z.union([z.string().max(4000), z.array(z.string().max(40)).max(10)])
 const bodySchema = z.object({

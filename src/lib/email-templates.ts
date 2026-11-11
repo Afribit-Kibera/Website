@@ -395,7 +395,7 @@ export function fieldVisitNotification({
     <p>A field visit questionnaire was submitted on ${submittedAt.toLocaleString('en-GB', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Africa/Nairobi' })} (Nairobi time).</p>
     ${flags.length ? `<div style="background:#fef3c7;border-left:4px solid #f97316;padding:12px 15px;margin:15px 0;"><strong>For review:</strong><br>${flags.map(escapeEmailHtml).join('<br>')}</div>` : ''}
     ${rows}
-    <p style="margin-top:24px;color:#6b7280;font-size:13px;">The subject line follows the Geyser format, so this email can be forwarded to hello@geyser.fund as it is.</p>
+    <p style="margin-top:24px;color:#6b7280;font-size:13px;">After review, this email can be forwarded to hello@geyser.fund as it is. The subject line already follows the Geyser format.</p>
   </div>
 </body>
 </html>
