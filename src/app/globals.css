@@ -146,6 +146,11 @@ html {
   background: var(--bg-base);
 }
 
+/* Full-screen field visit questionnaire: keep focused questions clear of its fixed bars. */
+html:has([data-field-visit]) {
+  scroll-padding: calc(5.5rem + env(safe-area-inset-top)) 0 calc(5.5rem + env(safe-area-inset-bottom));
+}
+
 body {
   min-height: 100vh;
   max-width: 100vw;

@@ -145,7 +145,7 @@ export function Header() {
 
   const close = () => setMobileOpen(false)
 
-  if (pathname === '/education' || pathname === '/studio' || pathname.startsWith('/studio/')) return null
+  if (pathname === '/education' || pathname === '/studio' || pathname.startsWith('/studio/') || pathname === '/field-visit') return null
 
   return (
     <>

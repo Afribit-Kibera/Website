@@ -36,7 +36,7 @@ const SOCIALS = [
 
 export function Footer() {
   const pathname = usePathname()
-  if (pathname === '/education' || pathname === '/studio' || pathname.startsWith('/studio/')) return null
+  if (pathname === '/education' || pathname === '/studio' || pathname.startsWith('/studio/') || pathname === '/field-visit') return null
   const isHome = pathname === '/'
   const bgClass = isHome
     ? 'bg-grid-lines glow-green bg-bg-surface/50 mt-0'

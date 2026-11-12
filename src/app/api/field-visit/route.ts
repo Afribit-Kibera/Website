@@ -98,6 +98,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'The questionnaire could not be read. Please refresh and try again.' }, { status: 400 })
     }
     console.error('Field visit submission error:', error)
-    return NextResponse.json({ success: false, error: 'Something went wrong. Your answers are saved on this device; please try again.' }, { status: 500 })
+    return NextResponse.json({ success: false, error: 'Something went wrong while sending. Your answers are still here, so please try again.' }, { status: 500 })
   }
 }

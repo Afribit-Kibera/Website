@@ -154,7 +154,7 @@ const visitStep = (followUp: boolean): Step => ({
   id: 'visit',
   section: 'visit',
   title: 'About this visit',
-  intro: 'Fill this in with the business owner. It takes about 10 minutes.',
+  intro: 'Go through these questions together with the business owner.',
   fields: [
     { id: 'fieldPartner', kind: 'text', label: 'Field Partner (your name or organisation)', short: 'Field Partner', maxLength: 120, autoComplete: 'organization', placeholder: 'e.g. Afribit Kibera' },
     { id: 'visitDate', kind: 'date', label: 'Visit date' },
@@ -245,7 +245,7 @@ const NEW_STEPS: Step[] = [
     title: 'Stock and debt',
     fields: [
       stockField,
-      { id: 'hasDebt', kind: 'choice', options: yesNoUnsure, label: 'Is any business loan or supplier debt outstanding?', short: 'Outstanding debt', hint: 'Existing debt is flagged to Geyser for review.' },
+      { id: 'hasDebt', kind: 'choice', options: yesNoUnsure, label: 'Is any business loan or supplier debt outstanding?', short: 'Outstanding debt', hint: 'Any existing debt is reviewed before the grant.' },
     ],
   },
   {
@@ -362,12 +362,12 @@ const FOLLOW_UP_STEPS: Step[] = [
 export const FORMS: Record<FieldVisitType, { title: string; summary: string; steps: Step[] }> = {
   new: {
     title: 'New beneficiary',
-    summary: 'Before launch. Records the baseline for a merchant being recommended for a Circular Grant.',
+    summary: 'First visit, before the grant. How the business is doing today.',
     steps: NEW_STEPS,
   },
   'follow-up': {
     title: 'Beneficiary follow-up',
-    summary: 'At 3, 6 and 9 months. Records what has changed since the grant.',
+    summary: '3, 6 or 9 months after the grant. What has changed since.',
     steps: FOLLOW_UP_STEPS,
   },
 }
