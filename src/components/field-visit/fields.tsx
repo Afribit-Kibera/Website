@@ -24,7 +24,7 @@ const optionClass = (selected: boolean) =>
       : 'border-border-soft bg-bg-surface/60 text-text-soft hover:border-border-strong hover:bg-bg-elevated',
   )
 
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 type FieldProps = {
   field: Field

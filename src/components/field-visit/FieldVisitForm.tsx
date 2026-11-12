@@ -79,12 +79,17 @@ const noopSubscribe = () => () => {}
 function keepFocusedInView(event: FocusEvent<HTMLDivElement>) {
   const target = event.target
   if (!(target instanceof HTMLElement) || target.closest('header, [data-action-bar]') || target.tabIndex < 0) return
-  requestAnimationFrame(() => {
+  const reveal = () => {
+    if (document.activeElement !== target) return
     const rect = target.getBoundingClientRect()
     const viewport = window.visualViewport
     const visibleBottom = (viewport ? viewport.offsetTop + viewport.height : window.innerHeight) - 88
-    if (rect.bottom > visibleBottom || rect.top < 80) target.scrollIntoView({ block: 'center', inline: 'nearest' })
-  })
+    // Instant, because the site's smooth scrolling can be interrupted by typing.
+    if (rect.bottom > visibleBottom || rect.top < 80) target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' })
+  }
+  requestAnimationFrame(reveal)
+  // Check again once the phone keyboard has finished opening.
+  window.setTimeout(reveal, 350)
 }
 
 // Top and bottom bars are fixed to the viewport (the site clips sideways overflow
