@@ -40,8 +40,16 @@ async function noOverflow(label) {
   for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: width < 768 ? 844 : 1000 })
     await page.waitForTimeout(100)
-    const { inner, scroll } = await page.evaluate(() => ({ inner: innerWidth, scroll: document.documentElement.scrollWidth }))
-    assert.ok(scroll <= inner, `${label} overflows at ${width}px: ${scroll}`)
+    // The page clips sideways overflow, so check that every visible element fits instead.
+    const wide = await page.evaluate(() => {
+      const vw = document.documentElement.clientWidth
+      return [...document.querySelectorAll('body *')].filter(el => {
+        if (el.closest('[aria-hidden="true"], .sr-only, iframe')) return false
+        const r = el.getBoundingClientRect()
+        return r.width > 0 && r.height > 0 && (r.right > vw + 0.5 || r.left < -0.5)
+      }).map(el => `${el.tagName.toLowerCase()}.${String(el.className).split(' ')[0]}`).slice(0, 5)
+    })
+    assert.deepEqual(wide, [], `${label} overflows at ${width}px`)
   }
   await page.setViewportSize({ width: 390, height: 844 })
 }
@@ -55,7 +63,7 @@ async function solveCaptchaAndSend() {
     return button && !button.disabled
   }, null, { timeout: 15000 }), 'captcha did not enable sending')
   await send.click()
-  await page.getByRole('heading', { name: 'Questionnaire submitted' }).waitFor({ timeout: 20000 })
+  await page.getByRole('heading', { name: 'Questionnaire sent' }).waitFor({ timeout: 20000 })
   return (await page.locator('.font-mono').textContent())?.trim()
 }
 
@@ -64,6 +72,8 @@ try {
   const response = await page.goto(`${base}/field-visit`, { waitUntil: 'networkidle' })
   assert.equal(response.status(), 200)
   assert.equal(await page.locator('h1').count(), 1)
+  assert.equal(await page.locator('body > header, footer').count(), 0, 'site header and footer are hidden')
+  assert.equal(await page.getByText(/Screen \d|short screens/).count(), 0, 'no page counts')
   assert.match(await page.locator('meta[name="robots"]').getAttribute('content'), /noindex/)
   await page.getByRole('button', { name: /New beneficiary/ }).waitFor()
   await noOverflow('chooser')
@@ -144,12 +154,13 @@ try {
   assert.ok(review.join('\n').includes('Not sure'))
   assert.ok(review.join('\n').includes('KES 12,500'))
   assert.ok(!review.join('\n').includes('Bitcoin payments'), 'skipped questions are not reviewed')
+  assert.equal(await page.getByText(/Screen \d+ of/).count(), 0)
   console.log('PASS new beneficiary: validation, focus, conditional questions and skipped screen')
 
   // Draft survives a reload
   await page.reload({ waitUntil: 'networkidle' })
   await heading().filter({ hasText: 'Check and send' }).waitFor()
-  assert.ok(await page.getByText(/We restored your unsent answers/).isVisible())
+  assert.ok(await page.getByText(/Welcome back\. We kept your answers/).isVisible())
   console.log('PASS draft restored after reload')
 
   // Edit from review returns to review
@@ -169,7 +180,7 @@ try {
   console.log(`PASS new beneficiary submitted (${newRef})`)
 
   // ---------- Follow-up ----------
-  await page.getByRole('button', { name: 'Choose a different form' }).click()
+  await page.getByRole('button', { name: 'Back to start' }).click()
   await page.getByRole('button', { name: /Beneficiary follow-up/ }).click()
   await expectScreen('About this visit')
   await fill('fieldPartner', 'E2E TEST Partner')
